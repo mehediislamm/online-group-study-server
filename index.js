@@ -35,7 +35,50 @@ async function run() {
         res.send(result)
     })
 
- 
+  
+    app.get("/api/v1/all-assignment", async (req, res) => {
+      const result = await assignmentsCollection.find().toArray();
+      res.send(result);
+    });
+
+
+      //  update Single User 
+       app.put(`/api/v1/update-assignment/:assignmentId`, async (req, res) => {
+        const id = req.params.assignmentId;
+        const data = req.body;
+        console.log("id", id, data);
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedData = {
+          $set: {
+            title: data.title,
+            marks: data.marks,
+            description: data.description,
+            date: data.date,
+            image:data.image,
+            level: data.data
+          },
+        };
+
+        const result = await assignmentsCollection.updateOne(
+          filter,
+          updatedData,
+          options
+        );
+        res.send(result);
+      });
+
+      
+      app.get("/api/v1/update-assignment/:assignmentId", async (req, res) => {
+        const id = req.params.assignmentId;
+        console.log("id", id);
+        const query = {
+          _id: new ObjectId(id),
+        };
+        const result = await assignmentsCollection.findOne(query);
+        console.log(result);
+        res.send(result);
+      });
   
 
 
