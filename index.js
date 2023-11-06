@@ -31,13 +31,18 @@ async function run() {
     const submitedCollection = client.db('group-studyDB').collection('submitedassignment');
 
 
-    app.post('/api/v1/create-assignments', async(req,res)=>{
-        const assignments = req.body;
-        const result = await assignmentsCollection.insertOne(assignments)
-        res.send(result)
+    app.post('/api/v1/create-assignments', async (req, res) => {
+      const assignments = req.body;
+      const result = await assignmentsCollection.insertOne(assignments)
+      res.send(result)
     })
 
-   
+    app.delete(`/api/v1/all-assignment/:assignmentId`, async (req, res) => {
+      const id = req.params.assignmentId
+      const quary = { _id: new ObjectId(id) }
+      const result = await assignmentsCollection.deleteOne(quary);
+      res.send(result);
+    })
 
     app.get("/api/v1/all-assignment", async (req, res) => {
       const result = await assignmentsCollection.find().toArray();
@@ -45,67 +50,83 @@ async function run() {
     });
 
 
-      //  update Single User 
-       app.put(`/api/v1/update-assignment/:assignmentId`, async (req, res) => {
-        const id = req.params.assignmentId;
-        const data = req.body;
-        console.log("id", id, data);
-        const filter = { _id: new ObjectId(id) };
-        const options = { upsert: true };
-        const updatedData = {
-          $set: {
-            title: data.title,
-            marks: data.marks,
-            description: data.description,
-            date: data.date,
-            image:data.image,
-            level: data.level
-          },
-        };
-
-        const result = await assignmentsCollection.updateOne(
-          filter,
-          updatedData,
-          options
-        );
-        res.send(result);
-      });
-
-      
-      app.get("/api/v1/update-assignment/:assignmentId", async (req, res) => {
-        const id = req.params.assignmentId;
-        console.log("id", id);
-        const query = {
-          _id: new ObjectId(id),
-        };
-        const result = await assignmentsCollection.findOne(query);
-        console.log(result);
-        res.send(result);
-      });
-
-      // update single user end
+    //  update Single User 
+    app.put(`/api/v1/update-assignment/:assignmentId`, async (req, res) => {
+      const id = req.params.assignmentId;
+      const data = req.body;
+      console.log("id", id, data);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedData = {
+        $set: {
+          title: data.title,
+          marks: data.marks,
+          description: data.description,
+          date: data.date,
+          image: data.image,
+          level: data.level
+        },
+      };
+      const result = await assignmentsCollection.updateOne(
+        filter,
+        updatedData,
+        options
+      );
+      res.send(result);
+    });
 
 
-        // features card section
-        app.get("/api/v1/features-cards", async (req, res) => {
-          const result = await featureCollection.find().toArray();
-          res.send(result);
-        });
+    app.get("/api/v1/update-assignment/:assignmentId", async (req, res) => {
+      const id = req.params.assignmentId;
+      console.log("id", id);
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await assignmentsCollection.findOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
+    // update single user end
+
+    // submitedassignment
+    app.get("/api/v1/all-assignment/:assignmentId", async (req, res) => {
+      const id = req.params.assignmentId;
+      console.log("id", id);
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await assignmentsCollection.findOne(query);
+      console.log(result);
+      res.send(result);
+    });
 
 
-        // submited assignment
-        app.post('/api/v1/submited-assignments', async(req,res)=>{
-          const assignments = req.body;
-          const result = await submitedCollection.insertOne(assignments)
-          res.send(result)
-      })
+    // features card section
+    app.get("/api/v1/features-cards", async (req, res) => {
+      const result = await featureCollection.find().toArray();
+      res.send(result);
+    });
 
-  
+
+    // submited assignment
+    app.post('/api/v1/submited-assignments', async (req, res) => {
+      const assignments = req.body;
+      const result = await submitedCollection.insertOne(assignments)
+      res.send(result)
+    })
+
+    app.get("/api/v1/submited-all-assignment", async (req, res) => {
+      const result = await submitedCollection.find().toArray();
+      res.send(result);
+    });
+
+
 
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log( "Pinged your deployment. You successfully connected to MongoDB!");
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
