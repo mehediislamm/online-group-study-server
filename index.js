@@ -8,7 +8,10 @@ require('dotenv').config()
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5174',
+      'https://online-group-study-cc1cb.web.app',
+      'https://online-group-study-cc1cb.firebaseapp.com'
+],
   credentials: true
 
 }));
@@ -69,18 +72,18 @@ async function run() {
 
     // auth related api
 
-    app.post('/jwt', logger, async (req, res) => {
-      const user = req.body;
-      console.log(user);
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-      res.
-        cookie('token', token, {
-          httpOnly: true,
-          secure: false,  //http://localhost:5000/
-          // sameSite: 'none'
-        })
-        .send({ success: true })
-    })
+    // app.post('/jwt', logger, async (req, res) => {
+    //   const user = req.body;
+    //   console.log(user);
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    //   res.
+    //     cookie('token', token, {
+    //       httpOnly: true,
+    //       secure: false,  //http://localhost:5000/
+    //       // sameSite: 'none'
+    //     })
+    //     .send({ success: true })
+    // })
 
 
 
@@ -102,7 +105,34 @@ async function run() {
       res.send(result);
     })
 
-    app.get("api/v1/submited-all-assignment",verifyToken,  logger, async (req, res) => {
+    // app.delete(`/api/v1/all-assignment/:assignmentId`, async (req, res) => {
+    //   const id = req.params.assignmentId
+    //   const {email} = req.query;
+    //   const quary = { _id: new ObjectId(id) }
+    //   console.log(id, email);
+    //   const result = await assignmentsCollection.deleteOne(quary);
+    //   console.log('delete result find:', result);
+      
+    //   if(!result){
+    //     console.log('no item found');
+    //     return res
+    //           .status(404)
+    //           .json({ message : 'assignment not found'})
+    //   }
+    //   if(email = result?.creatorEmail){
+    //     const deleteResult = await assignmentsCollection.deleteOne(
+    //       quary
+    //     )
+    //     res.send(deleteResult);
+    //   }
+    //   else{
+    //     return res
+    //           .status(403)
+    //           .json({message:"access donied . Email does not match"})
+    //   }
+    // })verifyToken,
+
+    app.get("api/v1/submited-all-assignment",  logger, async (req, res) => {
       console.log(req.query.email);
       // console.log('tok tok tok token', req.cookies.token);
       console.log('user in the valid token', req.user);
@@ -214,7 +244,7 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
