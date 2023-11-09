@@ -87,13 +87,17 @@ async function run() {
     //           .status(403)
     //           .json({message:"access donied . Email does not match"})
     //   }
-    // })verifyToken,
+    // })
 
 
     app.get("/api/v1/all-assignment", async (req, res) => {
       const result = await assignmentsCollection.find().toArray();
       res.send(result);
     });
+    // app.get("/api/v1/all-assignment", async (req, res) => {
+    //   const result = await assignmentsCollection.find().toArray();
+    //   res.send(result);
+    // });
 
 
     //  update Single User 
@@ -170,20 +174,19 @@ async function run() {
 
     // submited assignments  //update
 
-    app.patch('/api/v1/submited-all-assignment:id', async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const updateAssignment = req.body;
-      console.log(updateAssignment);
-      const updateDoc = {
-        $set: {
-          status: updateAssignment.status
-        },
-      };
-      const result = await submitedCollection.updateOne(filter, updateDoc);
-      res.send(result)
-    })
-
+    // app.patch('/api/v1/submited-all-assignment:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) };
+    //   const updateAssignment = req.body;
+    //   console.log(updateAssignment);
+    //   const updateDoc = {
+    //     $set: {
+    //       status: updateAssignment.status
+    //     },
+    //   };
+    //   const result = await submitedCollection.updateOne(filter, updateDoc);
+    //   res.send(result)
+    // })
 
 
 
