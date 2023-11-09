@@ -1,23 +1,15 @@
 const express = require("express");
-const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
-const jwt = require('jsonwebtoken');
 const app = express();
 require('dotenv').config()
-const port = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: ['http://localhost:5174',
-      'https://online-group-study-cc1cb.web.app',
-      'https://online-group-study-cc1cb.firebaseapp.com'
-],
-  credentials: true
 
-}));
+
+//middleware
+app.use(cors()) 
 app.use(express.json());
-app.use(cookieParser());
-
+const port = process.env.PORT || 5000;
 
 
 // const uri = "mongodb+srv://<username>:groupStudy@OF4ynwLVq7ModC0T.mongodb.net/?retryWrites=true&w=majority`;
@@ -32,38 +24,14 @@ const client = new MongoClient(uri, {
   },
 });
 
-// middleware
-const logger = async (req, res, next) => {
-  console.log('colled', req.host, req.originalUrl);
-  next()
-}
 
-const verifyToken = async (req, res, next) => {
-  const token = req.cookies?.token;
-  console.log('value of token in middleware', token);
-  if (!token) {
-    return res.status(401).send({ message: 'not authorized' })
-  }
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
-    // error 
-    if(err){
-      console.log(err);
-      return res.status(401).send({message: 'unauthorized'})
-    }
-    // if token is valid then it would be decoded
-    console.log('value in the token', decoded);
-    req.user= decoded;
-    next()
-  })
-  
-}
 
 
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const assignmentsCollection = client.db('group-studyDB').collection('assignments');
     const featureCollection = client.db('group-studyDB').collection('features');
@@ -72,19 +40,7 @@ async function run() {
 
     // auth related api
 
-    // app.post('/jwt', logger, async (req, res) => {
-    //   const user = req.body;
-    //   console.log(user);
-    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-    //   res.
-    //     cookie('token', token, {
-    //       httpOnly: true,
-    //       secure: false,  //http://localhost:5000/
-    //       // sameSite: 'none'
-    //     })
-    //     .send({ success: true })
-    // })
-
+  
 
 
 
@@ -93,8 +49,9 @@ async function run() {
     // services related api
 
     app.post('/api/v1/create-assignments', async (req, res) => {
-      const assignments = req.body;
-      const result = await assignmentsCollection.insertOne(assignments)
+      const user = req.body;
+      const result = await assignmentsCollection.insertOne(user)
+      console.log(result);
       res.send(result)
     })
 
@@ -132,20 +89,7 @@ async function run() {
     //   }
     // })verifyToken,
 
-    app.get("api/v1/submited-all-assignment",  logger, async (req, res) => {
-      console.log(req.query.email);
-      // console.log('tok tok tok token', req.cookies.token);
-      console.log('user in the valid token', req.user);
-      if(req.query.email !== req.user.email){
-        return res.status(403).send({message: 'forbidden access'})
-      }
-      let quary = {};
-      if (req.query?.email) {
-        quary = { email: req.query.email }
-      }
-      const result = await submitedCollection.find().toArray();
-      res.send(result);
-    });
+
     app.get("/api/v1/all-assignment", async (req, res) => {
       const result = await assignmentsCollection.find().toArray();
       res.send(result);
@@ -205,7 +149,7 @@ async function run() {
 
 
     // features card section
-    app.get("/api/v1/features-cards", logger, async (req, res) => {
+    app.get("/api/v1/features-cards", async (req, res) => {
       const result = await featureCollection.find().toArray();
       res.send(result);
     });
@@ -236,6 +180,8 @@ async function run() {
           status: updateAssignment.status
         },
       };
+      const result = await submitedCollection.updateOne(filter, updateDoc);
+      res.send(result)
     })
 
 
